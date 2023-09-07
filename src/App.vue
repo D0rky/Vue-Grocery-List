@@ -1,10 +1,34 @@
+<script setup>
+  import { useStorage } from '@vueuse/core'
+  import confetti from 'canvas-confetti'
+  import { ref } from 'vue';
+  import { nanoid } from 'nanoid'
 
 
-<script setup></script>
+  const newGrocery = ref('')
+  const groceries = useStorage('groceries', [])
+  const addGrocery = () => {
+    
+    if (newGrocery.value) {
+      groceries.value.push({id: nanoid(), name: newGrocery.value})
+      newGrocery.value = ''
+    }
+  }
+
+
+  const deleteGrocery = id => {
+    const removeIndex = groceries.value.findIndex(grocery => grocery.id == id)
+    groceries.value.splice(removeIndex, 1)
+    confetti({ particleCount: 300, spread: 1000, origin: { y: 1 }})
+  }
+
+
+</script>
 
 <template>
   <main>
     <h1 class="title">📝 Vue Grocery List 📝</h1>
+    
 
     <form class="newGroceryForm" @submit.prevent="addGrocery">
       <input
@@ -17,14 +41,16 @@
       <button type="submit">Add</button>
     </form>
 
-    <ul >
-      <li>
-        Tortillas
+    <h3>Prending Items: {{ groceries.length }}</h3>
+
+    <ul>
+      <li v-for="grocery in groceries" @click="deleteGrocery(grocery.id)">
+        {{ grocery.name }}
       </li>
     </ul>
 
   </main>
-  
+
 </template>
 
 
